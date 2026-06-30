@@ -1,4 +1,12 @@
 import os
+import sys
+
+# Reconfigure output encoding to support Vietnamese characters in Windows terminal
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 import wave
 import math
 import struct
