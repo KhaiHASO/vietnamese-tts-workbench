@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vietnamese TTS Workbench - Trình Tạo Giọng Nói & Voice Cloning</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>VieNeu<span>Studio</span></h2>
+                    <p>Vbee Offline Alternative</p>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-tab="tts-tab">
+                    <i class="fa-solid fa-microphone"></i>
+                    <span>Tạo Giọng Nói</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="cloning-tab">
+                    <i class="fa-solid fa-arrows-spin"></i>
+                    <span>Nhân Bản Giọng Nói</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="conversation-tab">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Kịch Bản Hội Thoại</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="history-tab">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Lịch Sử Thư Viện</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="author-info">
+                    <p>Phát triển bởi <strong style="color: var(--accent-cyan)">Antigravity AI</strong></p>
+                    <span>Dựa trên VieNeu-TTS</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Header Panel -->
+            <header class="header-bar">
+                <div class="header-title">
+                    <h1 id="page-title">Tạo Giọng Nói Tiếng Việt</h1>
+                    <p class="subtitle" id="page-subtitle">Nhập văn bản và chọn giọng nói để tổng hợp âm thanh chất lượng cao</p>
+                </div>
+                
+                <div class="status-panel">
+                    <div class="status-badge" id="engine-status">
+                        <span class="status-dot warning"></span>
+                        <span class="status-text">Đang kiểm tra kết nối...</span>
+                    </div>
+                    <button class="btn btn-secondary btn-icon-only" id="btn-refresh-status" title="Kiểm tra lại hệ thống">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Notification Toast -->
+            <div id="toast" class="toast hidden">
+                <i class="fa-solid fa-circle-info toast-icon"></i>
+                <span class="toast-message">Thông báo hiển thị tại đây</span>
+            </div>
+
+            <!-- Tab Content: 1. TTS Generation -->
+            <section id="tts-tab" class="tab-content active">
+                <div class="grid-container">
+                    <!-- Left: Input Area -->
+                    <div class="card col-8">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-regular fa-file-lines"></i> Nội dung văn bản</h3>
+                            <span class="char-counter" id="char-counter">0 / 2000 ký tự</span>
+                        </div>
+                        
+                        <!-- Emotion Tags Panel -->
+                        <div class="tag-helper-panel">
+                            <span class="panel-label">Thêm cảm xúc nhanh:</span>
+                            <button class="tag-btn" data-tag="[cười]"><i class="fa-regular fa-face-laugh-beam"></i> [cười]</button>
+                            <button class="tag-btn" data-tag="[thở dài]"><i class="fa-solid fa-wind"></i> [thở dài]</button>
+                            <button class="tag-btn" data-tag="[thì thầm]"><i class="fa-solid fa-volume-low"></i> [thì thầm]</button>
+                            <button class="tag-btn" data-tag="[ngạc nhiên]"><i class="fa-regular fa-face-surprise"></i> [ngạc nhiên]</button>
+                            <button class="tag-btn" data-tag="[do dự]"><i class="fa-regular fa-face-rolling-eyes"></i> [do dự]</button>
+                        </div>
+                        
+                        <div class="text-editor-container">
+                            <textarea id="tts-text" placeholder="Nhập văn bản tiếng Việt của bạn ở đây... Sử dụng các thẻ cảm xúc như [cười] hoặc [thở dài] để giọng đọc tự nhiên hơn. Có thể gõ xen kẽ tiếng Anh và tiếng Việt như 'Tôi đang làm một cái video review iPhone 15 Pro Max mới mua cực kỳ đẹp...'" maxlength="2000"></textarea>
+                        </div>
+
+                        <div class="editor-footer">
+                            <button class="btn btn-secondary" id="btn-clear-text">Xóa hết</button>
+                            <button class="btn btn-primary btn-glowing" id="btn-generate-tts">
+                                <i class="fa-solid fa-play"></i> <span>Tạo Giọng Nói (Synthesize)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Voice & Model Settings -->
+                    <div class="col-4 flex-column-gap">
+                        <!-- Card: Voice Selection -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-user-gear"></i> Chọn giọng đọc</h3>
+                            </div>
+                            
+                            <div class="voice-selection-container">
+                                <!-- Voice selection tab toggles -->
+                                <div class="voice-type-tabs">
+                                    <button class="voice-tab active" data-type="built-in">Mặc định</button>
+                                    <button class="voice-tab" data-type="cloned" id="tab-cloned-voices">Đã Clone</button>
+                                </div>
+                                
+                                <!-- Built-in Voices Grid -->
+                                <div class="voices-list active" id="built-in-voices-list">
+                                    <div class="loader-container"><div class="spinner"></div></div>
+                                </div>
+                                
+                                <!-- Cloned Voices List -->
+                                <div class="voices-list" id="cloned-voices-list">
+                                    <p class="empty-state">Chưa có giọng nói clone nào. Qua tab <strong>Nhân Bản Giọng Nói</strong> để tạo giọng đầu tiên!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card: Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-sliders"></i> Tùy chỉnh nâng cao</h3>
+                            </div>
+                            <div class="settings-body">
+                                <div class="setting-item">
+                                    <label for="setting-speed">
+                                        <span>Tốc độ đọc</span>
+                                        <span class="setting-value" id="val-speed">1.0x</span>
+                                    </label>
+                                    <input type="range" id="setting-speed" min="0.5" max="2.0" step="0.1" value="1.0" class="slider">
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <label for="setting-mode">Mô hình VieNeu-TTS</label>
+                                    <select id="setting-mode" class="select-input">
+                                        <option value="turbo" selected>VieNeu v3 Turbo (48 kHz - Khuyên dùng)</option>
+                                        <option value="standard">VieNeu v2 Standard (24 kHz - Nhẹ hơn)</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item" id="client-synth-toggle-container">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="setting-client-synth" checked>
+                                        <span class="checkmark"></span>
+                                        <span>Sử dụng Web Speech API (Đọc giọng trình duyệt khi mô phỏng)</span>
+                                    </label>
+                                    <p class="setting-help">Khi ở chế độ mô phỏng, tuỳ chọn này giúp máy tính phát âm tiếng Việt chuẩn của Google/Microsoft thay vì chỉ phát âm thanh robot.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: Generated Output Panel -->
+                <div class="card mt-4 hidden" id="audio-result-panel">
+                    <div class="result-layout">
+                        <div class="result-details">
+                            <h4><i class="fa-solid fa-circle-check" style="color: var(--accent-cyan)"></i> Kết quả tổng hợp thành công</h4>
+                            <div class="metadata-tags">
+                                <span class="badge" id="res-badge-engine">Chế độ: Mô phỏng</span>
+                                <span class="badge" id="res-badge-voice">Giọng đọc: Hoài Nam</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Visual Audio Player -->
+                        <div class="audio-player-wrapper">
+                            <div class="wave-visualizer-container">
+                                <canvas id="waveform-canvas"></canvas>
+                            </div>
+                            <div class="player-controls">
+                                <audio id="result-audio-element" controls></audio>
+                                <div class="action-buttons">
+                                    <a href="#" class="btn btn-secondary" id="btn-download-audio" download>
+                                        <i class="fa-solid fa-download"></i> Tải về (.wav)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: 2. Voice Cloning -->
+            <section id="cloning-tab" class="tab-content">
+                <div class="grid-container">
+                    <!-- Left: Upload/Record Audio -->
+                    <div class="card col-6">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-solid fa-arrows-spin"></i> Trích xuất giọng nói mẫu</h3>
+                        </div>
+                        
+                        <p class="card-description">
+                            Để clone (nhân bản) giọng nói tức thì (Zero-shot cloning), hãy tải lên hoặc ghi âm một đoạn giọng nói mẫu. 
+                            <strong>Đoạn mẫu nên dài từ 3 đến 5 giây</strong>, rõ tiếng, không lẫn tạp âm hoặc nhạc nền.
+                        </p>
+                        
+                        <!-- Voice clone sources tabs -->
+                        <div class="clone-sources-tabs">
+                            <button class="source-tab active" data-source="upload-source">
+                                <i class="fa-solid fa-file-arrow-up"></i> Tải file lên
+                            </button>
+                            <button class="source-tab" data-source="record-source">
+                                <i class="fa-solid fa-microphone-lines"></i> Ghi âm trực tiếp
+                            </button>
+                        </div>
+                        
+                        <!-- Source 1: Upload File -->
+                        <div class="source-panel active" id="upload-source">
+                            <div class="drop-zone" id="drop-zone">
+                                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                                <p>Kéo và thả file âm thanh vào đây, hoặc click để chọn file</p>
+                                <span>Hỗ trợ WAV, MP3, M4A dung lượng &lt; 10MB</span>
+                                <input type="file" id="clone-file-input" accept="audio/*" class="hidden">
+                            </div>
+                            
+                            <!-- File preview -->
+                            <div class="file-preview-bar hidden" id="file-preview-bar">
+                                <i class="fa-regular fa-file-audio preview-icon"></i>
+                                <div class="file-info">
+                                    <span class="file-name" id="preview-file-name">filename.wav</span>
+                                    <span class="file-size" id="preview-file-size">1.2 MB</span>
+                                </div>
+                                <button class="btn-clear-file" id="btn-remove-file"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Source 2: Mic Record -->
+                        <div class="source-panel" id="record-source">
+                            <div class="mic-record-container">
+                                <div class="mic-circle" id="mic-btn">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </div>
+                                <p class="mic-status" id="mic-status">Click vào mic để bắt đầu ghi âm</p>
+                                <div class="timer hidden" id="record-timer">00:00</div>
+                                
+                                <div class="recording-visualizer hidden" id="recording-visual">
+                                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Common name field -->
+                        <div class="setting-item mt-4">
+                            <label for="clone-voice-name">Tên giọng nói mới</label>
+                            <input type="text" id="clone-voice-name" class="text-input" placeholder="Ví dụ: Giọng Thầy Giáo, Giọng Xuân Bắc, Giọng Của Tôi...">
+                        </div>
+                        
+                        <div class="editor-footer">
+                            <button class="btn btn-primary btn-glowing w-100" id="btn-submit-clone">
+                                <i class="fa-solid fa-arrows-spin"></i> Phân tích & Lưu vào Thư Viện
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Cloned Voices Library -->
+                    <div class="card col-6">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-solid fa-rectangle-list"></i> Thư viện giọng clone của tôi</h3>
+                        </div>
+                        
+                        <div class="library-container">
+                            <p class="library-help">Giọng nói sau khi được lưu sẽ xuất hiện ở đây và trong bảng chọn giọng đọc ở màn hình chính. Bạn có thể sử dụng chúng bất cứ lúc nào offline.</p>
+                            
+                            <div class="cloned-library-list" id="library-list-full">
+                                <p class="empty-state">Chưa có giọng nói clone nào được tạo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: 3. Conversation Mode -->
+            <section id="conversation-tab" class="tab-content">
+                <div class="grid-container">
+                    <div class="card col-12">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-solid fa-comments"></i> Biên Tập Kịch Bản Podcast / Hội Thoại</h3>
+                            <button class="btn btn-secondary" id="btn-add-dialogue-row">
+                                <i class="fa-solid fa-plus"></i> Thêm Dòng Thoại
+                            </button>
+                        </div>
+                        
+                        <p class="card-description">
+                            Tạo cuộc hội thoại hoặc podcast đa người nói. Bạn có thể chọn các nhân vật khác nhau (kể cả giọng nói đã clone) cho từng câu thoại và ghép tất cả lại thành một file audio duy nhất.
+                        </p>
+                        
+                        <!-- Timeline Conversation list -->
+                        <div class="conversation-timeline" id="conversation-timeline">
+                            <!-- Dialogue Rows will be added dynamically by JS -->
+                        </div>
+                        
+                        <div class="editor-footer mt-4">
+                            <button class="btn btn-secondary" id="btn-clear-conversation">Xóa Toàn Bộ Kịch Bản</button>
+                            <button class="btn btn-primary btn-glowing" id="btn-generate-conversation">
+                                <i class="fa-solid fa-layer-group"></i> Tạo Audio Hội Thoại (Merge)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversation output container -->
+                <div class="card mt-4 hidden" id="conversation-result-panel">
+                    <div class="result-layout">
+                        <div class="result-details">
+                            <h4><i class="fa-solid fa-circle-check" style="color: var(--accent-cyan)"></i> Kết quả hội thoại</h4>
+                            <div class="metadata-tags">
+                                <span class="badge" id="conv-badge-engine">Chế độ: Mô phỏng</span>
+                                <span class="badge" id="conv-badge-lines">Số câu thoại: 0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="audio-player-wrapper">
+                            <div class="player-controls">
+                                <audio id="conversation-audio-element" controls></audio>
+                                <div class="action-buttons">
+                                    <a href="#" class="btn btn-secondary" id="btn-download-conv" download>
+                                        <i class="fa-solid fa-download"></i> Tải về cuộc hội thoại
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: 4. History -->
+            <section id="history-tab" class="tab-content">
+                <div class="card col-12">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký lịch sử tạo</h3>
+                        <button class="btn btn-secondary" id="btn-refresh-history">
+                            <i class="fa-solid fa-arrows-rotate"></i> Làm mới danh sách
+                        </button>
+                    </div>
+                    
+                    <div class="history-table-container">
+                        <table class="history-table" id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Thời Gian</th>
+                                    <th>Nội Dung Văn Bản</th>
+                                    <th>Giọng Đọc</th>
+                                    <th>Dung Lượng</th>
+                                    <th>Trình Phát</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list-body">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">Đang tải lịch sử...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

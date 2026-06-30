@@ -1,0 +1,12 @@
+# FastAPI backend requirements
+fastapi>=0.100.0
+uvicorn>=0.22.0
+python-multipart>=0.0.6
+pydantic>=2.0
+jinja2>=3.0
+
+# Optional: To use the live VieNeu-TTS models on Windows:
+# install via terminal:
+# pip install vieneu --extra-index-url https://pnnbao97.github.io/llama-cpp-python-v0.3.16/cpu/
+# Or for GPU support (requires CUDA toolkit):
+# pip install "vieneu[gpu]"
